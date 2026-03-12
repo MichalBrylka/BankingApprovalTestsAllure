@@ -1,0 +1,51 @@
+name: Maven Tests + Allure Report
+
+on:
+  push:
+  pull_request:
+
+env:
+  # This kills the deprecation warning by forcing the newer runtime
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install Allure
+        run: |
+          npm install -g allure-commandline --save-dev          
+          allure --version
+
+      - name: Run Maven tests
+        run: mvn -B clean test
+
+      - name: Generate Allure report
+        if: success() || failure()    # run this step even if previous step failed
+        run: |          
+          allure generate target/allure-results --clean --single-file -o target/allure-single
+
+      - name: Upload Allure HTML report
+        if: success() || failure()    # run this step even if previous step failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-single
+          path: target/allure-single/index.html

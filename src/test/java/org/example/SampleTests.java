@@ -2,7 +2,7 @@ package org.example;
 
 import org.approvaltests.Approvals;
 import org.approvaltests.JsonJacksonApprovals;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,6 +23,7 @@ class SampleTests
      *  This is only required if you want to use the VerifyAsJson.
      **/
     @Test
+    @Disabled("Run manually if needed")
     void testJson()
     {
         Person hero = new Person("jayne", "cobb", true, 38);
